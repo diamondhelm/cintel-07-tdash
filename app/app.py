@@ -1,15 +1,17 @@
+## Import your libraries##
 import seaborn as sns
 from faicons import icon_svg
-
 from shiny import reactive
 from shiny.express import input, render, ui
 import palmerpenguins 
 
+## Load appropriate Data##
 df = palmerpenguins.load_penguins()
 
+## Main UI layout with a title and fillable sidebar##
 ui.page_opts(title="Penguins dashboard", fillable=True)
 
-
+##Sidebar information##
 with ui.sidebar(title="Filter controls"):
     ui.input_slider("mass", "Mass", 2000, 6000, 6000)
     ui.input_checkbox_group(
@@ -18,6 +20,8 @@ with ui.sidebar(title="Filter controls"):
         ["Adelie", "Gentoo", "Chinstrap"],
         selected=["Adelie", "Gentoo", "Chinstrap"],
     )
+
+    ##Add appropriate links##
     ui.hr()
     ui.h6("Links")
     ui.a(
@@ -47,6 +51,7 @@ with ui.sidebar(title="Filter controls"):
         target="_blank",
     )
 
+## Section for visuals and datasets##
 
 with ui.layout_column_wrap(fill=False):
     with ui.value_box(showcase=icon_svg("earlybirds")):
@@ -75,6 +80,7 @@ with ui.layout_columns():
     with ui.card(full_screen=True):
         ui.card_header("Bill length and depth")
 
+## Render scatter plot with seaborn##
         @render.plot
         def length_depth():
             return sns.scatterplot(
@@ -86,7 +92,9 @@ with ui.layout_columns():
 
     with ui.card(full_screen=True):
         ui.card_header("Penguin Data")
+        
 
+    ## Render a DataFrame with selected columns##
         @render.data_frame
         def summary_statistics():
             cols = [
@@ -100,8 +108,13 @@ with ui.layout_columns():
 
 
 #ui.include_css(app_dir / "styles.css")
+ui.include_css(Path(__file__).parent / "styles.css")
 
 
+##Define the reactive calc##
+
+
+## Reactive function to filter the dataset based on inputs##
 @reactive.calc
 def filtered_df():
     filt_df = df[df["species"].isin(input.species())]
